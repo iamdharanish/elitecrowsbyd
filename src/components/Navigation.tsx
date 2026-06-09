@@ -255,7 +255,7 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay – improved animation and positioning */}
+      {/* Mobile Menu Overlay – FIXED: added pointerEvents: 'auto' */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -280,6 +280,7 @@ export default function Navigation() {
               zIndex: 999,
               maxHeight: 'calc(100vh - 100px)',
               overflowY: 'auto',
+              pointerEvents: 'auto',   // ✅ Fix: enables clicking on links in mobile menu
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
