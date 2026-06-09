@@ -38,6 +38,11 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // ✅ Scroll to top on every route change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false)
@@ -80,7 +85,7 @@ export default function Navigation() {
         transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
         display: 'flex',
         justifyContent: 'center',
-        pointerEvents: 'none', // allows clicking through the empty space, but children will override
+        pointerEvents: 'none',
       }}
     >
       <div
@@ -96,7 +101,7 @@ export default function Navigation() {
           boxShadow: scrolled ? cssVars.shadowNav : 'none',
           transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
           padding: '0 24px',
-          pointerEvents: 'auto', // make the nav bar interactive
+          pointerEvents: 'auto',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '72px' }}>
@@ -108,7 +113,7 @@ export default function Navigation() {
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              minHeight: '44px', // touch target
+              minHeight: '44px',
             }}
           >
             <div
@@ -255,7 +260,7 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay – FIXED: added pointerEvents: 'auto' */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -280,7 +285,7 @@ export default function Navigation() {
               zIndex: 999,
               maxHeight: 'calc(100vh - 100px)',
               overflowY: 'auto',
-              pointerEvents: 'auto',   // ✅ Fix: enables clicking on links in mobile menu
+              pointerEvents: 'auto',
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -346,7 +351,6 @@ export default function Navigation() {
             display: flex !important;
           }
         }
-        /* Improve touch targets on very small devices */
         @media (max-width: 480px) {
           .mobile-actions button {
             padding: 10px !important;
