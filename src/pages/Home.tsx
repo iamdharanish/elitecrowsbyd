@@ -336,7 +336,7 @@ export default function Home() {
                   textAlign: 'center'
                 }}
               >
-                EliteCrows builds future-ready digital solutions – from AI-native applications and cloud infrastructure to zero-trust cybersecurity. Trusted by 75+ global brands across industries.
+                EliteCrows builds future-ready digital solutions – from AI-native applications and cloud infrastructure to zero-trust cybersecurity. Trusted by 78+ global brands across industries.
               </motion.p>
 
               <motion.div
