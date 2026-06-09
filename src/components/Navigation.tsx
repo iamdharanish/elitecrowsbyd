@@ -28,8 +28,8 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const menuRef = useRef<HTMLDivElement>(null)        // desktop nav bar
-  const mobileMenuRef = useRef<HTMLDivElement>(null)  // mobile overlay
+  const menuRef = useRef<HTMLDivElement>(null)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
 
   // Scroll to top on route change
   useEffect(() => {
@@ -78,6 +78,11 @@ export default function Navigation() {
     return () => document.removeEventListener('keydown', handleEsc)
   }, [mobileOpen])
 
+  // FIX: close menu immediately, then let React Router navigate
+  const handleMobileLinkClick = () => {
+    setMobileOpen(false)
+  }
+
   return (
     <nav
       style={{
@@ -89,6 +94,7 @@ export default function Navigation() {
         transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
         display: 'flex',
         justifyContent: 'center',
+        // FIX: only apply pointerEvents none to the nav wrapper, not the overlay
         pointerEvents: 'none',
       }}
     >
@@ -263,15 +269,15 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay – fixed with separate ref */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            ref={mobileMenuRef}   // ✅ attach ref here
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            ref={mobileMenuRef}
+            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             style={{
               position: 'fixed',
               top: 'clamp(70px, 15vh, 90px)',
@@ -282,65 +288,88 @@ export default function Navigation() {
               background: cssVars.navMobileBg,
               backdropFilter: 'blur(24px)',
               WebkitBackdropFilter: 'blur(24px)',
-              padding: '24px 20px',
+              padding: '20px 16px',
               borderRadius: '28px',
               border: `1px solid ${cssVars.border}`,
               boxShadow: cssVars.shadowCardHover,
-              zIndex: 999,
+              zIndex: 1001,
               maxHeight: 'calc(100vh - 100px)',
               overflowY: 'auto',
+              // FIX: ensure the overlay itself always captures pointer events
               pointerEvents: 'auto',
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {navLinks.map((link) => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {navLinks.map((link, i) => {
                 const isActive = location.pathname === link.path
                 return (
-                  <Link
+                  <motion.div
                     key={link.path}
-                    to={link.path}
-                    style={{
-                      padding: '14px 18px',
-                      borderRadius: '14px',
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      color: isActive ? cssVars.accent : cssVars.textPrimary,
-                      background: isActive ? cssVars.accentLight : 'transparent',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                      minHeight: '52px',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04, duration: 0.18 }}
                   >
-                    {link.label}
-                  </Link>
+                    <Link
+                      to={link.path}
+                      // FIX: close menu on tap so the overlay never blocks the destination page
+                      onClick={handleMobileLinkClick}
+                      style={{
+                        padding: '14px 18px',
+                        borderRadius: '14px',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        color: isActive ? cssVars.accent : cssVars.textPrimary,
+                        background: isActive ? cssVars.accentLight : 'transparent',
+                        textDecoration: 'none',
+                        transition: 'all 0.15s ease',
+                        minHeight: '52px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        // FIX: remove iOS tap delay and highlight flash
+                        WebkitTapHighlightColor: 'transparent',
+                        touchAction: 'manipulation',
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
                 )
               })}
-              <Link
-                to="/contact"
-                style={{
-                  marginTop: '16px',
-                  padding: '14px 24px',
-                  fontSize: '15px',
-                  justifyContent: 'center',
-                  background: `linear-gradient(135deg, ${cssVars.accent}, #00C6FF)`,
-                  color: 'white',
-                  borderRadius: '50px',
-                  textDecoration: 'none',
-                  fontWeight: 600,
-                  textAlign: 'center',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'transform 0.2s',
-                  minHeight: '52px',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+
+              {/* Get Started CTA */}
+              <motion.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: navLinks.length * 0.04, duration: 0.18 }}
+                style={{ marginTop: '12px' }}
               >
-                Get Started
-              </Link>
+                <Link
+                  to="/contact"
+                  onClick={handleMobileLinkClick}
+                  style={{
+                    padding: '14px 24px',
+                    fontSize: '15px',
+                    justifyContent: 'center',
+                    background: `linear-gradient(135deg, ${cssVars.accent}, #00C6FF)`,
+                    color: 'white',
+                    borderRadius: '50px',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'transform 0.2s',
+                    minHeight: '52px',
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                >
+                  Get Started
+                </Link>
+              </motion.div>
             </div>
           </motion.div>
         )}
