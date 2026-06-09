@@ -12,7 +12,6 @@ const navLinks = [
   { path: '/contact', label: 'Contact' },
 ]
 
-// CSS custom properties with fallbacks
 const cssVars = {
   navBg: 'var(--nav-bg, rgba(255, 255, 255, 0.9))',
   border: 'var(--border, rgba(0, 0, 0, 0.08))',
@@ -29,19 +28,20 @@ export default function Navigation() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const menuRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)        // desktop nav bar
+  const mobileMenuRef = useRef<HTMLDivElement>(null)  // mobile overlay
 
-  // Track scroll position for nav card effect
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
+
+  // Track scroll for nav style
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  // ✅ Scroll to top on every route change
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [location.pathname])
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -54,10 +54,14 @@ export default function Navigation() {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu when clicking outside both the nav bar AND the mobile overlay
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (mobileOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (!mobileOpen) return
+      const target = event.target as Node
+      const isInsideNavBar = menuRef.current?.contains(target)
+      const isInsideMobileMenu = mobileMenuRef.current?.contains(target)
+      if (!isInsideNavBar && !isInsideMobileMenu) {
         setMobileOpen(false)
       }
     }
@@ -88,6 +92,7 @@ export default function Navigation() {
         pointerEvents: 'none',
       }}
     >
+      {/* Desktop / main nav bar */}
       <div
         ref={menuRef}
         style={{
@@ -143,7 +148,6 @@ export default function Navigation() {
                   color: cssVars.textPrimary,
                   lineHeight: 1.1,
                   letterSpacing: '-0.02em',
-                  transition: 'color 0.3s',
                 }}
               >
                 Elite<span style={{ color: cssVars.accent }}>Crows</span>
@@ -154,7 +158,6 @@ export default function Navigation() {
                   color: cssVars.textSecondary,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
-                  transition: 'color 0.3s',
                 }}
               >
                 Infotech
@@ -260,10 +263,11 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay – fixed with separate ref */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            ref={mobileMenuRef}   // ✅ attach ref here
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
