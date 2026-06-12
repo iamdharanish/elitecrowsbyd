@@ -78,13 +78,17 @@ export default function Navigation() {
     return () => document.removeEventListener('keydown', handleEsc)
   }, [mobileOpen])
 
-  // FIX: close menu immediately, then let React Router navigate
   const handleMobileLinkClick = () => {
     setMobileOpen(false)
   }
 
+  // Yellow color for Crows and Infotech
+  const yellow = '#FFC107'
+
   return (
     <nav
+      aria-label="Main navigation"
+      role="navigation"
       style={{
         position: 'fixed',
         top: scrolled ? '12px' : '0px',
@@ -94,7 +98,6 @@ export default function Navigation() {
         transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)',
         display: 'flex',
         justifyContent: 'center',
-        // FIX: only apply pointerEvents none to the nav wrapper, not the overlay
         pointerEvents: 'none',
       }}
     >
@@ -116,7 +119,7 @@ export default function Navigation() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '72px' }}>
-          {/* Logo */}
+          {/* Logo with black background */}
           <Link
             to="/"
             style={{
@@ -127,12 +130,12 @@ export default function Navigation() {
               minHeight: '44px',
             }}
           >
+            {/* Black background wrapper for logo */}
             <div
               style={{
-                width: '34px',
-                height: '34px',
-                background: 'linear-gradient(135deg, #0066FF 0%, #7C3AED 100%)',
+                background: '#000000',
                 borderRadius: '10px',
+                padding: '4px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -142,11 +145,16 @@ export default function Navigation() {
               <img
                 src="/eclogo.png"
                 alt="EliteCrows logo"
-                style={{ height: '22px', filter: 'brightness(0) invert(1)' }}
+                style={{
+                  height: '26px',
+                  width: 'auto',
+                  display: 'block',
+                }}
                 onError={(e) => (e.currentTarget.style.display = 'none')}
               />
             </div>
-            <div>
+            {/* Text container: centered alignment for both lines */}
+            <div style={{ textAlign: 'center' }}>
               <div
                 style={{
                   fontSize: 'clamp(14px, 4vw, 16px)',
@@ -156,14 +164,17 @@ export default function Navigation() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                Elite<span style={{ color: cssVars.accent }}>Crows</span>
+                ELITE<span style={{ color: yellow }}> CROWS</span>
               </div>
+              {/* Infotech: smaller than ELITE CROWS, bold, centered */}
               <div
                 style={{
-                  fontSize: 'clamp(8px, 2.5vw, 10px)',
-                  color: cssVars.textSecondary,
-                  letterSpacing: '0.12em',
+                  fontSize: 'clamp(9px, 2.5vw, 11px)',
+                  fontWeight: 700,
+                  color: yellow,
+                  letterSpacing: '0.1em',
                   textTransform: 'uppercase',
+                  marginTop: '2px',
                 }}
               >
                 Infotech
@@ -244,8 +255,9 @@ export default function Navigation() {
           <div className="mobile-actions" style={{ display: 'none', gap: '8px', alignItems: 'center' }}>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
               style={{
                 background: 'none',
                 border: 'none',
@@ -295,7 +307,6 @@ export default function Navigation() {
               zIndex: 1001,
               maxHeight: 'calc(100vh - 100px)',
               overflowY: 'auto',
-              // FIX: ensure the overlay itself always captures pointer events
               pointerEvents: 'auto',
             }}
           >
@@ -311,7 +322,6 @@ export default function Navigation() {
                   >
                     <Link
                       to={link.path}
-                      // FIX: close menu on tap so the overlay never blocks the destination page
                       onClick={handleMobileLinkClick}
                       style={{
                         padding: '14px 18px',
@@ -325,7 +335,6 @@ export default function Navigation() {
                         minHeight: '52px',
                         display: 'flex',
                         alignItems: 'center',
-                        // FIX: remove iOS tap delay and highlight flash
                         WebkitTapHighlightColor: 'transparent',
                         touchAction: 'manipulation',
                       }}
@@ -336,7 +345,6 @@ export default function Navigation() {
                 )
               })}
 
-              {/* Get Started CTA */}
               <motion.div
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
